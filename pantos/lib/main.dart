@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:pantos/add_address.dart';
-import 'package:pantos/add_item.dart';
 
 void main() => runApp(MyApp());
 
@@ -23,24 +22,13 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+  MyHomePage({Key key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -50,6 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
   FlutterBlue flutterBlue = FlutterBlue.instance;
 
   BluetoothDevice pantsDevice;
+  List<Location> locations = [];
 
   navigateAddAddress(BuildContext context) async {
     final result = await Navigator.push(
@@ -57,39 +46,35 @@ class _MyHomePageState extends State<MyHomePage> {
       MaterialPageRoute(builder: (context) => AddAddressWidget()),
     );
 
-    // After the Selection Screen returns a result, hide any previous snackbars
-    // and show the new result.
-    Scaffold.of(context)
-      ..removeCurrentSnackBar()
-      ..showSnackBar(SnackBar(
-          content: Text("Location added at: ${result.x}, ${result.y}")));
-  }
-
-  navigateAddItem(BuildContext context) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => AddItemWidget()),
-    );
+    locations.add(result);
 
     // After the Selection Screen returns a result, hide any previous snackbars
     // and show the new result.
     Scaffold.of(context)
       ..removeCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text("Item registered: $result")));
+      ..showSnackBar(SnackBar(content: Text("Location added: ${result.name}")));
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Builder(
-        // we need an extra builder here because Google doesn't understand the concept of mitigating incidental complexity
-        builder: (BuildContext context) {
+    return Scaffold(body: Builder(builder: (BuildContext context) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            FlatButton(
-                onPressed: () => navigateAddItem(context),
-                child: Text('Add Item')),
+            ListView.separated(
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              padding: const EdgeInsets.all(8),
+              itemCount: locations.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Container(
+                    height: 50,
+                    child: Center(child: Text(locations[index].name)));
+              },
+              separatorBuilder: (BuildContext context, int index) =>
+                  const Divider(),
+            ),
             FlatButton(
                 onPressed: () => navigateAddAddress(context),
                 child: Text('Add Location')),

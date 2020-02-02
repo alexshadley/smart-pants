@@ -1,6 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:pantos/geocode.dart';
 
+class Location {
+  Coordinate coordinate;
+  String name;
+
+  Location(Coordinate coordinate, String name) {
+    this.coordinate = coordinate;
+    this.name = name;
+  }
+}
+
 class AddAddressWidget extends StatefulWidget {
   @override
   _AddAddressWidget createState() => _AddAddressWidget();
@@ -62,7 +72,8 @@ class _AddAddressWidget extends State<AddAddressWidget> {
                           // you'd often call a server or save the information in a database.
 
                           submitAddress().then((Coordinate c) {
-                            Navigator.pop(context, c);
+                            Navigator.pop(
+                                context, new Location(c, nameController.text));
                           });
                         }
                       },
